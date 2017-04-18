@@ -21,7 +21,7 @@ class Command(BaseCommand):
         total = 0
         tgusers = TgUser.objects.filter(active=True)
         for tguser in tgusers:
-            result = tguser.send_message(text, keyboard=tguser.keyboards.Start)
+            result = tguser.send_message(text, keyboard=keyboards.Start)
             if options['verbosity'] >= 2:
                 print(tguser, bool(result))
             total += 1

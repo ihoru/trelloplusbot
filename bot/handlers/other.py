@@ -68,9 +68,9 @@ class OtherHandler(bot_utils.BaseHandler):
     def send_to_feedback_tgchat(tguser: TgUser, tgchat: TgChat, additional=''):
         message = tguser.message
         reply_to_message = message.reply_to_message
-        if tguser.current_call:
-            additional = ' во время <a href="%s">рабочего дня</a> (%s)%s' % (tguser.current_call.get_url(), tguser.current_call.get_state(), additional)
-        tgchat.send_message('%s прислал%s:' % (tguser.admin_name_advanced, additional))
+        # if tguser.current_call:
+        #     additional = ' во время <a href="%s">рабочего дня</a> (%s)%s' % (tguser.current_call.get_url(), tguser.current_call.get_state(), additional)
+        tgchat.send_message('%s прислал:' % tguser.admin_name_advanced)
         sent_message = tgchat.forward_message(message.chat.id, message.message_id)
         if isinstance(reply_to_message, Message):
             tgchat.send_message('в ответ на:')
