@@ -127,6 +127,25 @@ class PrivateHandler(bot_utils.BaseHandler):
         tguser.edit_message_reply_markup(keyboard=keyboards.Card(tguser, card_id, timer))
 
     @staticmethod
+    @tgbot.callback_query_handler(TgUser.is_authorized, data_startswith='/timer_add ')
+    def timer_add(tguser: TgUser):
+        seconds = int(tguser.callback_query_data_get(1))
+        card_id = tguser.callback_query_data_get(2)
+
+        timer = tguser.timer_set.filter(card_id=card_id).first()
+        if not timer:
+            tguser.answer_callback_query('Timer was not started', show_alert=True)
+            raise bot_utils.StateErrorHandler('timer_not_started')
+
+        to_add = timedelta(seconds=seconds)
+
+        timer.created_at = timer.created_at - to_add
+        timer.save()
+
+        tguser.answer_callback_query('Added %s' % to_add)
+        tguser.edit_message_reply_markup(keyboard=keyboards.Card(tguser, card_id, timer))
+
+    @staticmethod
     @tgbot.callback_query_handler(TgUser.is_authorized, data_startswith='/timer_stop ')
     def timer_stop(tguser: TgUser):
         card_id = tguser.callback_query_data_get(1)
@@ -183,9 +202,10 @@ class PrivateHandler(bot_utils.BaseHandler):
     @tgbot.message_handler(TgUser.is_private, regexp=keyboards.Help.emoji_to_regexp())
     @tgbot.message_handler(TgUser.is_private, commands=keyboards.Help.commands() + ['sos'])
     def help(tguser: TgUser):
-        tguser.render_to_string('bot/private/help.html', keyboard=keyboards.Start)
+        tguser.render_to_string('bot/private/help.html', keyboard=tguser.keyboards.Start)
 
     @staticmethod
     @tgbot.message_handler(TgUser.is_private, commands=['settings'])
     def settings(tguser: TgUser):
-        tguser.send_message('Настроек пока нет', keyboard=keyboards.Start)
+        tguser.send_message('Настроек пока нет', keyboard=tguser.keyboards.Start)
+
