@@ -35,6 +35,8 @@ class PrivateHandler(bot_utils.BaseHandler):
                 pass
         if not tguser.is_authorized():
             PrivateHandler.unauthorized(tguser)
+        else:
+            PrivateHandler.boards(tguser)
 
     @classmethod
     def unauthorized(cls, tguser: TgUser):
