@@ -28,7 +28,9 @@ class Keyboard(object):
     def emoji_to_regexp(cls, *emojis):
         if not emojis and not isinstance(cls.button, (tuple, list)):
             raise Exception('wrong button')
-        return r'^(%s)%s' % ('|'.join([re.escape(cur_emoji) for cur_emoji in emojis or [cls.button[0]]]), Keyboard.SEPARATOR)
+        return r'^(%s)%s' % ('|'.join(
+            [re.escape(cur_emoji) for cur_emoji in emojis or [cls.button[0]]]),
+                             Keyboard.SEPARATOR)
 
     @classmethod
     def text_to_regexp(cls, *texts, exact=True):
@@ -72,7 +74,8 @@ class Keyboard(object):
         return button
 
     @classmethod
-    def get_button(cls, button: dict or str or tuple or list = None, self_show=False, **kwargs) -> dict:
+    def get_button(cls, button: dict or str or tuple or list = None,
+                   self_show=False, **kwargs) -> dict:
         button_defined = bool(button)
         update = button or kwargs
         if isinstance(update, (str, tuple, list)):
@@ -86,7 +89,9 @@ class Keyboard(object):
             icon = None
             if isinstance(cls.button, (tuple, list)):
                 icon = cls.button[0]
-            elif isinstance(cls.button, dict) and 'text' in cls.button and isinstance(cls.button['text'], (tuple, list)):
+            elif isinstance(cls.button,
+                            dict) and 'text' in cls.button and isinstance(
+                cls.button['text'], (tuple, list)):
                 icon = cls.button['text'][0]
             if icon:
                 button['text'] = cls.join_button((icon, text))
@@ -106,7 +111,9 @@ class Keyboard(object):
 
     def get_reply_markup(self):
         reply_markup = self.create_reply_markup()
-        assert isinstance(reply_markup, (types.InlineKeyboardMarkup, types.ReplyKeyboardMarkup, types.ReplyKeyboardRemove, types.ForceReply))
+        assert isinstance(reply_markup, (
+            types.InlineKeyboardMarkup, types.ReplyKeyboardMarkup,
+            types.ReplyKeyboardRemove, types.ForceReply))
         for button_row in self.get_button_rows():
             # noinspection PyTypeChecker
             items = [self.create_button(button) for button in button_row]
@@ -158,7 +165,8 @@ class ReplyKeyboard(Keyboard):
     ]
 
     def create_reply_markup(self):
-        return types.ReplyKeyboardMarkup(resize_keyboard=self.resize_keyboard, one_time_keyboard=self.one_time_keyboard)
+        return types.ReplyKeyboardMarkup(resize_keyboard=self.resize_keyboard,
+                                         one_time_keyboard=self.one_time_keyboard)
 
     def button_type(self, text, **button):
         return types.KeyboardButton(text, **button)
@@ -174,7 +182,8 @@ class Boards(InlineKeyboard):
             name = board.name
             if board.id in timer_board_ids:
                 name = (emoji.TIMER, name)
-            rows.append([dict(text=name, callback_data='/board %s' % board.id)])
+            rows.append(
+                [dict(text=name, callback_data='/board %s' % board.id)])
         return rows
 
 
@@ -186,7 +195,8 @@ class Lists(InlineKeyboard):
             name = board_list.name
             if board_list.id in timer_list_ids:
                 name = (emoji.TIMER, name)
-            rows.append([dict(text=name, callback_data='/board_list %s' % board_list.id)])
+            rows.append([dict(text=name,
+                              callback_data='/board_list %s' % board_list.id)])
         rows.append([Back.get_button(callback_data='/back board')])
         return rows
 
@@ -211,14 +221,38 @@ class Card(InlineKeyboard):
         rows = []
         card_id, timer = self.args
         if timer:
-            timer_spent = base_utils.mytime(timezone.now() - timer.created_at, True)
-            rows.append([dict(text=timer_spent, callback_data='/timer %s' % card_id)])
+            timer_spent = base_utils.mytime(timezone.now() - timer.created_at,
+                                            True)
+            rows.append(
+                [dict(text=timer_spent, callback_data='/timer %s' % card_id)])
             rows.append([
-                dict(text=(emoji.STOP, 'Stop'), callback_data='/timer_stop %s' % card_id),
-                dict(text=(emoji.RESET, 'Reset'), callback_data='/timer_reset %s' % card_id),
+                dict(text=(emoji.STOP, 'Stop'),
+                     callback_data='/timer_stop %s' % card_id),
+                dict(text=(emoji.RESET, 'Reset'),
+                     callback_data='/timer_reset %s' % card_id),
             ])
+            rows.append([dict(text='+1m',
+                              callback_data='/timer_add %s %s' % (
+                                  1, card_id)),
+                         dict(text='+5m',
+                              callback_data='/timer_add %s %s' % (
+                                  5, card_id)),
+                         dict(text='+15m',
+                              callback_data='/timer_add %s %s' % (
+                                  15, card_id))
+                         ])
+            rows.append([dict(text='+30m',
+                              callback_data='/timer_add %s %s' % (
+                                  30, card_id)),
+                         dict(text='+1h',
+                              callback_data='/timer_add %s %s' % (
+                                  60, card_id)),
+                         dict(text='+3h',
+                              callback_data='/timer_add %s %s' % (
+                                  180, card_id))])
         else:
-            rows.append([dict(text=(emoji.START, 'Start'), callback_data='/timer_start %s' % card_id), ])
+            rows.append([dict(text=(emoji.START, 'Start'),
+                              callback_data='/timer_start %s' % card_id), ])
         rows.append([Back.get_button(callback_data='/back card %s' % card_id)])
         return rows
 
@@ -260,14 +294,17 @@ class YesNo(InlineKeyboard):
 
     def get_button_rows(self):
         buttons = [
-            dict(text=(emoji.OK, 'Да') if self.with_icons else 'Да', callback_data='%s yes' % base_utils.join(*self.args)),
-            dict(text=(emoji.CANCEL, 'Нет') if self.with_icons else 'Нет', callback_data='%s no' % base_utils.join(*self.args)),
+            dict(text=(emoji.OK, 'Да') if self.with_icons else 'Да',
+                 callback_data='%s yes' % base_utils.join(*self.args)),
+            dict(text=(emoji.CANCEL, 'Нет') if self.with_icons else 'Нет',
+                 callback_data='%s no' % base_utils.join(*self.args)),
         ]
         return [buttons]
 
 
 class Items(InlineKeyboard):
-    def __init__(self, tguser, items: list, *args, in_line: int = 5, show_item=False, item_str_func='__str__'):
+    def __init__(self, tguser, items: list, *args, in_line: int = 5,
+                 show_item=False, item_str_func='__str__'):
         super().__init__(tguser, *args)
         self.items = items
         self.in_line = in_line
@@ -280,14 +317,19 @@ class Items(InlineKeyboard):
 
     def get_button_rows(self):
         rows = []
-        for items in base_utils.chunks(list(enumerate(self.items, 1)), self.in_line):
+        for items in base_utils.chunks(list(enumerate(self.items, 1)),
+                                       self.in_line):
             buttons = []
             for num, item in items:
                 if self.show_item:
                     prop = getattr(item, self.item_str_func)
-                    buttons.append(dict(text=prop() if callable(prop) else prop, callback_data=self.command % str(item.id)))
+                    buttons.append(
+                        dict(text=prop() if callable(prop) else prop,
+                             callback_data=self.command % str(item.id)))
                 else:
-                    buttons.append(dict(text=str(num), callback_data=self.command % str(item)))
+                    buttons.append(dict(text=str(num),
+                                        callback_data=self.command % str(
+                                            item)))
             rows.append(buttons)
         return rows
 
@@ -302,5 +344,6 @@ class List(InlineKeyboard):
     def get_button_rows(self):
         rows = []
         for key, title in self.items:
-            rows.append([dict(text=str(title), callback_data='%s %s %s' % (self.command, key, self.params))])
+            rows.append([dict(text=str(title), callback_data='%s %s %s' % (
+                self.command, key, self.params))])
         return rows
