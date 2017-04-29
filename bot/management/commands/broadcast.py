@@ -2,6 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandParser
 
+from bot import keyboards
 from bot.models import TgUser
 
 logger = logging.getLogger(__name__)

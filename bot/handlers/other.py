@@ -1,5 +1,6 @@
 from importlib import import_module
 
+from django.conf import settings
 from telebot.types import Message
 
 from bot import keyboards
@@ -7,15 +8,14 @@ from bot import utils as bot_utils
 from bot.handlers import tgbot
 from bot.helpers import feedback_tgchat
 from bot.models import TgUser, TgChat, MessageLink
-from django.conf import settings
 
 
 def define_handlers_before_unknown_text(path):
-    module = import_module(path)
+    my_module = import_module(path)
     unknown_texts = []
     text_regexps = []
-    for name in dir(module):
-        kls = 'Handler' in name and getattr(module, name)
+    for name in dir(my_module):
+        kls = 'Handler' in name and getattr(my_module, name)
         if not kls or not issubclass(kls, bot_utils.BaseHandler):
             continue
         if not kls.is_abstract():
@@ -68,9 +68,7 @@ class OtherHandler(bot_utils.BaseHandler):
     def send_to_feedback_tgchat(tguser: TgUser, tgchat: TgChat, additional=''):
         message = tguser.message
         reply_to_message = message.reply_to_message
-        # if tguser.current_call:
-        #     additional = ' во время <a href="%s">рабочего дня</a> (%s)%s' % (tguser.current_call.get_url(), tguser.current_call.get_state(), additional)
-        tgchat.send_message('%s прислал:' % tguser.admin_name_advanced)
+        tgchat.send_message('%s прислал%s:' % (tguser.admin_name_advanced, additional))
         sent_message = tgchat.forward_message(message.chat.id, message.message_id)
         if isinstance(reply_to_message, Message):
             tgchat.send_message('в ответ на:')

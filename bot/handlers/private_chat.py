@@ -31,10 +31,12 @@ class PrivateHandler(bot_utils.BaseHandler):
                             t.delete()
                             tguser.authorize(token)
                             return tguser.render_to_string('bot/private/authorized.html', keyboard=keyboards.Start)
-            except Exception as e:
+            except Exception:
                 pass
         if not tguser.is_authorized():
             PrivateHandler.unauthorized(tguser)
+        else:
+            PrivateHandler.boards(tguser)
 
     @classmethod
     def unauthorized(cls, tguser: TgUser):
@@ -202,10 +204,9 @@ class PrivateHandler(bot_utils.BaseHandler):
     @tgbot.message_handler(TgUser.is_private, regexp=keyboards.Help.emoji_to_regexp())
     @tgbot.message_handler(TgUser.is_private, commands=keyboards.Help.commands() + ['sos'])
     def help(tguser: TgUser):
-        tguser.render_to_string('bot/private/help.html', keyboard=tguser.keyboards.Start)
+        tguser.render_to_string('bot/private/help.html', keyboard=keyboards.Start)
 
     @staticmethod
     @tgbot.message_handler(TgUser.is_private, commands=['settings'])
     def settings(tguser: TgUser):
-        tguser.send_message('Настроек пока нет', keyboard=tguser.keyboards.Start)
-
+        tguser.send_message('Настроек пока нет', keyboard=keyboards.Start)
