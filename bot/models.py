@@ -560,5 +560,5 @@ class Timer(MyModel):
     board_id = models.CharField(max_length=50)
     list_id = models.CharField(max_length=50)
     card_id = models.CharField(max_length=50, db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now) # we intend to modify this field later so auto_now_add isn't suitable
     message_id = models.BigIntegerField(unique=True)

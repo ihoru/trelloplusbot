@@ -217,6 +217,16 @@ class Card(InlineKeyboard):
                 dict(text=(emoji.STOP, 'Stop'), callback_data='/timer_stop %s' % card_id),
                 dict(text=(emoji.RESET, 'Reset'), callback_data='/timer_reset %s' % card_id),
             ])
+            rows.append([
+                dict(text='+1m', callback_data='/timer_add 60 %s' % card_id),
+                dict(text='+3m', callback_data='/timer_add 180 %s' % card_id),
+                dict(text='+15m', callback_data='/timer_add 900 %s' % card_id),
+            ])
+            rows.append([
+                dict(text='+30m', callback_data='/timer_add 1800 %s' % card_id),
+                dict(text='+1h', callback_data='/timer_add 3600 %s' % card_id),
+                dict(text='+3h', callback_data='/timer_add 10800 %s' % card_id),
+            ])
         else:
             rows.append([dict(text=(emoji.START, 'Start'), callback_data='/timer_start %s' % card_id), ])
         rows.append([Back.get_button(callback_data='/back card %s' % card_id)])
