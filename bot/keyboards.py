@@ -8,6 +8,7 @@ from base import utils as base_utils
 from bot import models as bot_models, emoji
 
 
+
 class Keyboard(object):
     button_rows = [
         # examples:
@@ -210,6 +211,7 @@ class Card(InlineKeyboard):
     def get_button_rows(self):
         rows = []
         card_id, timer = self.args
+
         if timer:
             timer_spent = base_utils.mytime(timezone.now() - timer.created_at, True)
             rows.append([dict(text=timer_spent, callback_data='/timer %s' % card_id)])
@@ -217,6 +219,12 @@ class Card(InlineKeyboard):
                 dict(text=(emoji.STOP, 'Stop'), callback_data='/timer_stop %s' % card_id),
                 dict(text=(emoji.RESET, 'Reset'), callback_data='/timer_reset %s' % card_id),
             ])
+
+            timer_rows = [
+                dict(text=title, callback_data='/timer_plus %s %s' % (card_id, minutes))
+                for title, minutes in timer.INCREASING_TIMES
+                ]
+            rows += base_utils.chunks(timer_rows, 3)
         else:
             rows.append([dict(text=(emoji.START, 'Start'), callback_data='/timer_start %s' % card_id), ])
         rows.append([Back.get_button(callback_data='/back card %s' % card_id)])

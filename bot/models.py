@@ -556,6 +556,14 @@ class Token(MyModel):
 
 
 class Timer(MyModel):
+    INCREASING_TIMES = (
+        ('+1m', 1),
+        ('+5m', 5),
+        ('+15m', 15),
+        ('+30m', 30),
+        ('+1h', 60),
+        ('+3h', 180),
+    )
     tguser = models.ForeignKey(verbose_name=TgUser.verbose_name(), to=TgUser)
     board_id = models.CharField(max_length=50)
     list_id = models.CharField(max_length=50)

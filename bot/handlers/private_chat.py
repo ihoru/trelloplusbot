@@ -164,6 +164,24 @@ class PrivateHandler(bot_utils.BaseHandler):
         tguser.edit_message_reply_markup(keyboard=keyboards.Card(tguser, card_id, None))
 
     @staticmethod
+    @tgbot.callback_query_handler(TgUser.is_authorized, data_startswith='/timer_plus ')
+    def timer_plus(tguser: TgUser):
+        card_id = tguser.callback_query_data_get(1)
+        minutes = tguser.callback_query_data_get(2, as_int=True)
+        assert isinstance(tguser.client, TrelloClient)
+        card = tguser.client.get_card(card_id)
+        assert isinstance(card, trolly.Card)
+        timer = tguser.timer_set.filter(card_id=card_id).first()
+        if not timer:
+            tguser.answer_callback_query('Timer was not started', show_alert=True)
+            raise bot_utils.StateErrorHandler('timer_not_started')
+        assert isinstance(timer, Timer)
+        timer.created_at = timer.created_at - timedelta(minutes=minutes)
+        timer.save()
+        tguser.answer_callback_query('Timer was increased on %s minutes' % minutes)
+        tguser.edit_message_reply_markup(keyboard=keyboards.Card(tguser, card_id, timer))
+
+    @staticmethod
     @tgbot.callback_query_handler(TgUser.is_authorized, data_startswith='/back ')
     def back(tguser: TgUser):
         obj_type = tguser.callback_query_data_get(1)
