@@ -7,14 +7,6 @@ from telebot import types
 from base import utils as base_utils
 from bot import models as bot_models, emoji
 
-increasing_times = [
-    ('+1m', 1),
-    ('+5m', 5),
-    ('+15m', 15),
-    ('+30m', 30),
-    ('+1h', 60),
-    ('+3h', 180),
-]
 
 
 class Keyboard(object):
@@ -228,12 +220,11 @@ class Card(InlineKeyboard):
                 dict(text=(emoji.RESET, 'Reset'), callback_data='/timer_reset %s' % card_id),
             ])
 
-            row = []
-            for time in increasing_times:
-                row.append(dict(text=time[0], callback_data='/timer_plus %s %s' % (card_id, time[1])))
-                if len(row) == 3:
-                    rows.append(row)
-                    row = []
+            timer_rows = [
+                dict(text=title, callback_data='/timer_plus %s %s' % (card_id, minutes))
+                for title, minutes in timer.INCREASING_TIMES
+                ]
+            rows += base_utils.chunks(timer_rows, 3)
         else:
             rows.append([dict(text=(emoji.START, 'Start'), callback_data='/timer_start %s' % card_id), ])
         rows.append([Back.get_button(callback_data='/back card %s' % card_id)])
